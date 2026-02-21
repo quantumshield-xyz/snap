@@ -10,6 +10,7 @@
 //   0x01 = Hybrid (ECDSA + ML-DSA-65) — 3,375 bytes
 //   0x02 = PQC-only (ML-DSA-65) — 3,310 bytes
 //   0x03 = Session Key (ECDSA only) — 66 bytes
+//   0x04 = Hybrid (ECDSA + ML-DSA-87) — 4,693 bytes (Level 5)
 //   0xFF = ECDSA-only (fallback) — 66 bytes
 
 import { ml_dsa65 } from '@noble/post-quantum/ml-dsa.js';
@@ -17,6 +18,7 @@ import { ml_dsa65 } from '@noble/post-quantum/ml-dsa.js';
 const VERSION_HYBRID = 0x01;
 const VERSION_PQC_ONLY = 0x02;
 const VERSION_SESSION_KEY = 0x03;
+const VERSION_ECDSA_MLDSA87 = 0x04;
 const VERSION_ECDSA_ONLY = 0xff;
 
 const MLDSA_PUBKEY_SIZE = 1952;
@@ -330,6 +332,7 @@ export const onRpcRequest = async ({ origin, request }) => {
           '0x01': 'Hybrid (ECDSA + ML-DSA-65)',
           '0x02': 'PQC-only (ML-DSA-65)',
           '0x03': 'Session Key (ECDSA)',
+          '0x04': 'Hybrid (ECDSA + ML-DSA-87) — Level 5',
           '0xFF': 'ECDSA-only (fallback)',
         },
       };
