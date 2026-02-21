@@ -1,0 +1,29 @@
+{
+  "version": "0.1.0",
+  "description": "QuantumShield PQC Snap — ML-DSA-65 (FIPS 204) hybrid signatures for MetaMask. Generates post-quantum key pairs and creates ECDSA + ML-DSA-65 hybrid signatures for QuantumShield L2.",
+  "proposedName": "QuantumShield PQC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liveplex-cpu/quantumshield-l2.git"
+  },
+  "source": {
+    "shasum": "",
+    "location": {
+      "npm": {
+        "filePath": "dist/bundle.js",
+        "packageName": "@quantumshield/snap",
+        "registry": "https://registry.npmjs.org"
+      }
+    }
+  },
+  "initialPermissions": {
+    "snap_dialog": {},
+    "snap_manageState": {},
+    "snap_notify": {},
+    "endowment:rpc": {
+      "dapps": true,
+      "snaps": false
+    }
+  },
+  "manifestVersion": "0.1"
+}

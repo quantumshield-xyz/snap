@@ -1,0 +1,27 @@
+{
+  "name": "@quantumshield/snap",
+  "version": "0.1.0",
+  "description": "QuantumShield PQC Snap — ML-DSA-65 hybrid signatures for MetaMask",
+  "type": "module",
+  "main": "dist/bundle.js",
+  "files": ["dist"],
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liveplex-cpu/quantumshield-l2.git",
+    "directory": "snap"
+  },
+  "keywords": ["metamask", "snap", "post-quantum", "ml-dsa", "pqc", "quantumshield"],
+  "author": "QuantumShield",
+  "license": "MIT",
+  "dependencies": {
+    "@noble/post-quantum": "^0.5.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "vitest": "^3.0.0"
+  }
+}
