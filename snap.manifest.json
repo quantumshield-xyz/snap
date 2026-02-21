@@ -7,11 +7,11 @@
     "url": "https://github.com/liveplex-cpu/quantumshield-l2.git"
   },
   "source": {
-    "shasum": "",
+    "shasum": "fc81437c9ada8d96b381aec0091c348c4d7b255ab614ef12f601440bed0b9b6a",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
-        "packageName": "@quantumshield/snap",
+        "packageName": "quantumshield-snap",
         "registry": "https://registry.npmjs.org"
       }
     }

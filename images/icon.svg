@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
+  <rect width="256" height="256" rx="48" fill="#0a0a18"/>
+  <circle cx="128" cy="128" r="80" stroke="#7c4dff" stroke-width="4" opacity="0.3"/>
+  <circle cx="128" cy="128" r="56" stroke="#00e5ff" stroke-width="3" opacity="0.5"/>
+  <path d="M128 72 L148 108 L188 108 L156 132 L168 168 L128 148 L88 168 L100 132 L68 108 L108 108 Z" fill="#7c4dff"/>
+  <text x="128" y="210" text-anchor="middle" font-family="monospace" font-size="24" font-weight="bold" fill="#00e5ff">QS</text>
+</svg>

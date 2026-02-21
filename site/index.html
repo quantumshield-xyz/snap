@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuantumShield PQC Snap — Install for MetaMask Flask</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #030308;
+  --card: #0a0a18;
+  --accent: #7c4dff;
+  --cyan: #00e5ff;
+  --success: #00e676;
+  --warn: #ff6d00;
+  --text: #e8e8f0;
+  --dim: #8888a8;
+  --border: rgba(124,77,255,0.15);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:40px 20px; }
+.container { max-width:720px; width:100%; }
+
+h1 { font-size:36px; font-weight:700; margin-bottom:8px; letter-spacing:-1px; }
+h1 span { color:var(--cyan); }
+.sub { color:var(--dim); font-size:16px; margin-bottom:40px; }
+
+.card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:32px; margin-bottom:24px; }
+.card h2 { font-size:20px; margin-bottom:16px; font-weight:600; }
+.card p { color:var(--dim); font-size:14px; line-height:1.7; margin-bottom:16px; }
+
+.status-bar { display:flex; gap:12px; align-items:center; padding:16px; border-radius:12px; margin-bottom:24px; font-family:'Space Mono',monospace; font-size:13px; }
+.status-bar.detecting { background:rgba(255,255,255,0.05); border:1px solid var(--border); }
+.status-bar.ok { background:rgba(0,230,118,0.08); border:1px solid rgba(0,230,118,0.3); color:var(--success); }
+.status-bar.warn { background:rgba(255,109,0,0.08); border:1px solid rgba(255,109,0,0.3); color:var(--warn); }
+.status-bar.error { background:rgba(255,50,50,0.08); border:1px solid rgba(255,50,50,0.3); color:#ff5252; }
+.dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.dot.green { background:var(--success); }
+.dot.orange { background:var(--warn); }
+.dot.red { background:#ff5252; }
+.dot.gray { background:var(--dim); }
+
+.btn { display:inline-flex; align-items:center; gap:8px; padding:16px 32px; border-radius:12px; font-size:15px; font-weight:600; border:none; cursor:pointer; transition:all 0.3s; text-decoration:none; }
+.btn-primary { background:linear-gradient(135deg,var(--accent),var(--cyan)); color:#000; }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 0 40px rgba(124,77,255,0.3); }
+.btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none; }
+.btn-outline { background:transparent; color:var(--text); border:1px solid var(--border); }
+.btn-outline:hover { background:var(--card); border-color:var(--accent); }
+.btn-sm { padding:10px 20px; font-size:13px; }
+
+.actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+
+.method-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+.method-item { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; padding:14px; }
+.method-item code { font-family:'Space Mono',monospace; font-size:12px; color:var(--cyan); display:block; margin-bottom:4px; }
+.method-item span { font-size:12px; color:var(--dim); }
+
+.log { background:#000; border:1px solid var(--border); border-radius:10px; padding:16px; font-family:'Space Mono',monospace; font-size:12px; max-height:200px; overflow-y:auto; margin-top:16px; display:none; }
+.log.visible { display:block; }
+.log-entry { margin-bottom:4px; }
+.log-entry.info { color:var(--cyan); }
+.log-entry.ok { color:var(--success); }
+.log-entry.err { color:#ff5252; }
+.log-entry.dim { color:var(--dim); }
+
+.steps { counter-reset:step; margin-top:16px; }
+.step { display:flex; gap:16px; margin-bottom:20px; }
+.step-num { width:32px; height:32px; border-radius:50%; background:var(--accent); color:#000; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; }
+.step-content h3 { font-size:15px; margin-bottom:4px; }
+.step-content p { font-size:13px; color:var(--dim); line-height:1.6; }
+.step-content a { color:var(--cyan); }
+
+footer { margin-top:40px; text-align:center; color:var(--dim); font-size:13px; }
+footer a { color:var(--accent); text-decoration:none; }
+
+@media(max-width:600px) {
+  .method-grid { grid-template-columns:1fr; }
+  .actions { flex-direction:column; }
+  .btn { width:100%; justify-content:center; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>QuantumShield <span>PQC Snap</span></h1>
+<p class="sub">Post-quantum ML-DSA-65 signatures for MetaMask Flask</p>
+
+<!-- Status -->
+<div id="statusBar" class="status-bar detecting">
+  <div id="statusDot" class="dot gray"></div>
+  <span id="statusText">Detecting MetaMask Flask...</span>
+</div>
+
+<!-- Install Card -->
+<div class="card">
+  <h2>Install Snap</h2>
+  <p>This Snap adds NIST FIPS 204 ML-DSA-65 post-quantum cryptography to MetaMask. Generate quantum-resistant key pairs, create hybrid (ECDSA + ML-DSA-65) signatures, and verify PQC signatures — all from within MetaMask.</p>
+  <div class="actions">
+    <button id="btnInstall" class="btn btn-primary" disabled onclick="installSnap()">Install QuantumShield Snap</button>
+    <button id="btnInfo" class="btn btn-outline btn-sm" disabled onclick="getSnapInfo()">Check Info</button>
+  </div>
+  <div id="log" class="log"></div>
+</div>
+
+<!-- How to -->
+<div class="card">
+  <h2>Getting Started</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Install MetaMask Flask</h3>
+        <p>MetaMask Flask is the developer edition that supports Snaps. <a href="https://metamask.io/flask/" target="_blank">Download Flask</a> (disable regular MetaMask first).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Click "Install QuantumShield Snap"</h3>
+        <p>MetaMask will ask you to approve the Snap permissions: key storage, dialog prompts, and notifications.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Generate PQC Key Pair</h3>
+        <p>Click "Generate Key" below or call <code>qs_generateKeyPair</code> from your dApp. A ML-DSA-65 key pair (1,952B public key) will be created and stored securely in the Snap.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h3>Use with QuantumShield L2</h3>
+        <p>Connect to <a href="/wallet/">Web Wallet</a> or <a href="/dapp/">dApp</a> to use your PQC keys for quantum-resistant transactions on Chain 42069.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Try It -->
+<div class="card">
+  <h2>Try It</h2>
+  <p>After installing, test the Snap's RPC methods:</p>
+  <div class="actions">
+    <button class="btn btn-outline btn-sm" onclick="callSnap('qs_generateKeyPair')" id="btnGenKey" disabled>Generate Key</button>
+    <button class="btn btn-outline btn-sm" onclick="callSnap('qs_listKeys')" id="btnListKeys" disabled>List Keys</button>
+    <button class="btn btn-outline btn-sm" onclick="callSnap('qs_getInfo')" id="btnGetInfo" disabled>Get Info</button>
+  </div>
+  <div id="tryLog" class="log"></div>
+</div>
+
+<!-- RPC Methods -->
+<div class="card">
+  <h2>Supported RPC Methods</h2>
+  <div class="method-grid">
+    <div class="method-item">
+      <code>qs_generateKeyPair</code>
+      <span>Generate ML-DSA-65 key pair (Level 3)</span>
+    </div>
+    <div class="method-item">
+      <code>qs_listKeys</code>
+      <span>List all stored PQC keys</span>
+    </div>
+    <div class="method-item">
+      <code>qs_getPublicKey</code>
+      <span>Get public key by ID</span>
+    </div>
+    <div class="method-item">
+      <code>qs_deleteKey</code>
+      <span>Delete a key pair</span>
+    </div>
+    <div class="method-item">
+      <code>qs_signHybrid</code>
+      <span>ECDSA + ML-DSA-65 hybrid sign (3,375B)</span>
+    </div>
+    <div class="method-item">
+      <code>qs_signPQCOnly</code>
+      <span>ML-DSA-65 only signature (3,310B)</span>
+    </div>
+    <div class="method-item">
+      <code>qs_verify</code>
+      <span>Verify PQC signature component</span>
+    </div>
+    <div class="method-item">
+      <code>qs_exportPublicKey</code>
+      <span>Export public key as hex</span>
+    </div>
+  </div>
+</div>
+
+<!-- npm info -->
+<div class="card">
+  <h2>For Developers</h2>
+  <p>Install via npm or connect programmatically:</p>
+  <pre style="background:#000;padding:16px;border-radius:10px;font-family:'Space Mono',monospace;font-size:13px;color:var(--cyan);overflow-x:auto;margin-top:12px;"><code>npm i quantumshield-snap</code></pre>
+  <pre style="background:#000;padding:16px;border-radius:10px;font-family:'Space Mono',monospace;font-size:12px;color:var(--dim);overflow-x:auto;margin-top:12px;line-height:1.6;"><code><span style="color:#7c4dff">// Connect from your dApp</span>
+<span style="color:var(--text)">const snapId = 'npm:quantumshield-snap';</span>
+
+<span style="color:var(--text)">await window.ethereum.request({</span>
+<span style="color:var(--text)">  method: 'wallet_requestSnaps',</span>
+<span style="color:var(--text)">  params: { [snapId]: {} }</span>
+<span style="color:var(--text)">});</span>
+
+<span style="color:#7c4dff">// Call Snap RPC</span>
+<span style="color:var(--text)">const result = await window.ethereum.request({</span>
+<span style="color:var(--text)">  method: 'wallet_invokeSnap',</span>
+<span style="color:var(--text)">  params: {</span>
+<span style="color:var(--text)">    snapId,</span>
+<span style="color:var(--text)">    request: { method: 'qs_generateKeyPair' }</span>
+<span style="color:var(--text)">  }</span>
+<span style="color:var(--text)">});</span></code></pre>
+</div>
+
+<footer>
+  <a href="/">QuantumShield L2</a> &middot; <a href="/wallet/">Wallet</a> &middot; <a href="/dapp/">dApp</a> &middot; <a href="https://github.com/liveplex-cpu/quantumshield-l2" target="_blank">GitHub</a>
+</footer>
+
+</div>
+
+<script>
+const SNAP_ID = 'npm:quantumshield-snap';
+let snapInstalled = false;
+
+function addLog(target, msg, cls='dim') {
+  const el = document.getElementById(target);
+  el.classList.add('visible');
+  const d = document.createElement('div');
+  d.className = 'log-entry ' + cls;
+  d.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+
+async function detectFlask() {
+  const bar = document.getElementById('statusBar');
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusText');
+
+  try {
+    const provider = window.ethereum;
+    if (!provider) {
+      bar.className = 'status-bar warn';
+      dot.className = 'dot orange';
+      txt.textContent = 'MetaMask not detected. Install MetaMask Flask to use Snaps.';
+      return;
+    }
+
+    const clientVersion = await provider.request({ method: 'web3_clientVersion' });
+    const isFlask = clientVersion?.includes('flask') || clientVersion?.toLowerCase().includes('flask');
+
+    // Check if snaps are supported
+    try {
+      const snaps = await provider.request({ method: 'wallet_getSnaps' });
+      if (snaps && snaps[SNAP_ID]) {
+        snapInstalled = true;
+        bar.className = 'status-bar ok';
+        dot.className = 'dot green';
+        txt.textContent = `QuantumShield Snap installed (v${snaps[SNAP_ID].version})`;
+        enableButtons(true);
+        return;
+      }
+    } catch(e) {}
+
+    if (isFlask) {
+      bar.className = 'status-bar ok';
+      dot.className = 'dot green';
+      txt.textContent = 'MetaMask Flask detected. Ready to install Snap.';
+    } else {
+      bar.className = 'status-bar ok';
+      dot.className = 'dot green';
+      txt.textContent = 'MetaMask detected. Snap support available.';
+    }
+    document.getElementById('btnInstall').disabled = false;
+
+  } catch(e) {
+    bar.className = 'status-bar error';
+    dot.className = 'dot red';
+    txt.textContent = 'Error detecting MetaMask: ' + e.message;
+  }
+}
+
+function enableButtons(installed) {
+  document.getElementById('btnInstall').disabled = false;
+  document.getElementById('btnInstall').textContent = installed ? 'Reinstall Snap' : 'Install QuantumShield Snap';
+  document.getElementById('btnInfo').disabled = !installed;
+  document.getElementById('btnGenKey').disabled = !installed;
+  document.getElementById('btnListKeys').disabled = !installed;
+  document.getElementById('btnGetInfo').disabled = !installed;
+}
+
+async function installSnap() {
+  addLog('log', 'Requesting Snap installation...', 'info');
+  try {
+    const result = await window.ethereum.request({
+      method: 'wallet_requestSnaps',
+      params: { [SNAP_ID]: {} }
+    });
+    addLog('log', 'Snap installed successfully!', 'ok');
+    addLog('log', JSON.stringify(result, null, 2), 'dim');
+    snapInstalled = true;
+    enableButtons(true);
+
+    // Update status
+    document.getElementById('statusBar').className = 'status-bar ok';
+    document.getElementById('statusDot').className = 'dot green';
+    document.getElementById('statusText').textContent = 'QuantumShield Snap installed!';
+  } catch(e) {
+    addLog('log', 'Installation failed: ' + e.message, 'err');
+  }
+}
+
+async function getSnapInfo() {
+  addLog('log', 'Calling qs_getInfo...', 'info');
+  try {
+    const result = await window.ethereum.request({
+      method: 'wallet_invokeSnap',
+      params: { snapId: SNAP_ID, request: { method: 'qs_getInfo' } }
+    });
+    addLog('log', JSON.stringify(result, null, 2), 'ok');
+  } catch(e) {
+    addLog('log', 'Error: ' + e.message, 'err');
+  }
+}
+
+async function callSnap(method, params) {
+  addLog('tryLog', `Calling ${method}...`, 'info');
+  try {
+    const result = await window.ethereum.request({
+      method: 'wallet_invokeSnap',
+      params: { snapId: SNAP_ID, request: { method, params: params || {} } }
+    });
+    const display = typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result);
+    addLog('tryLog', display, 'ok');
+  } catch(e) {
+    addLog('tryLog', 'Error: ' + e.message, 'err');
+  }
+}
+
+// Detect on load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => setTimeout(detectFlask, 500));
+} else {
+  setTimeout(detectFlask, 500);
+}
+</script>
+</body>
+</html>
