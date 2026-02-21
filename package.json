@@ -1,5 +1,5 @@
 {
-  "name": "quantumshield-snap",
+  "name": "@liveplex-cpu/quantumshield-snap",
   "version": "0.1.0",
   "description": "QuantumShield PQC Snap — ML-DSA-65 hybrid signatures for MetaMask. Post-quantum cryptography for QuantumShield L2.",
   "type": "module",
@@ -29,5 +29,8 @@
   "devDependencies": {
     "esbuild": "^0.24.0",
     "vitest": "^3.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }

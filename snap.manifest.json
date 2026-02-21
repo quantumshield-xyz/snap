@@ -11,8 +11,8 @@
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
-        "packageName": "quantumshield-snap",
-        "registry": "https://registry.npmjs.org"
+        "packageName": "@liveplex-cpu/quantumshield-snap",
+        "registry": "https://npm.pkg.github.com"
       }
     }
   },
