@@ -351,6 +351,124 @@ export const onRpcRequest = async ({ origin, request }) => {
       };
     }
 
+    // =========================================
+    // Secret Key Export / Key Pair Import
+    // =========================================
+    case 'qs_exportSecretKey': {
+      // Exports the ML-DSA secret key for backup purposes
+      // Requires explicit user confirmation via snap_dialog
+      const { keyId } = params;
+      const state = await getState();
+      const key = state.keys[keyId];
+      if (!key) throw new Error(`Key not found: ${keyId}`);
+
+      const confirm = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: panel([
+            heading('Export Secret Key'),
+            text(`**${origin}** wants to export the secret key for **${keyId}**.`),
+            divider(),
+            text('**WARNING:** This will expose your ML-DSA-65 private key (4,032 bytes).'),
+            text('Only proceed if you are backing up your keys to a secure location.'),
+            text('Anyone with this key can sign transactions on your behalf.'),
+          ]),
+        },
+      });
+
+      if (!confirm) {
+        throw new Error('User rejected secret key export');
+      }
+
+      return {
+        keyId,
+        secretKey: key.secretKey,
+        publicKey: key.publicKey,
+        algorithm: 'ML-DSA-65',
+        secretKeySize: MLDSA_PRIVKEY_SIZE,
+        publicKeySize: MLDSA_PUBKEY_SIZE,
+      };
+    }
+
+    case 'qs_importKeyPair': {
+      // Imports an ML-DSA key pair (public + secret key) into Snap storage
+      // Validates sizes and performs sign+verify integrity check
+      const { publicKey: pubHex, secretKey: secHex, label } = params;
+      if (!pubHex || !secHex) {
+        throw new Error('publicKey and secretKey are required');
+      }
+
+      const pubBytes = fromHex(pubHex);
+      const secBytes = fromHex(secHex);
+
+      if (pubBytes.length !== MLDSA_PUBKEY_SIZE) {
+        throw new Error(`Invalid public key size: expected ${MLDSA_PUBKEY_SIZE}, got ${pubBytes.length}`);
+      }
+      if (secBytes.length !== MLDSA_PRIVKEY_SIZE) {
+        throw new Error(`Invalid secret key size: expected ${MLDSA_PRIVKEY_SIZE}, got ${secBytes.length}`);
+      }
+
+      // Integrity check: sign a test message and verify
+      const testMsg = new Uint8Array(32);
+      testMsg[0] = 0x51; // 'Q' for QuantumShield
+      testMsg[1] = 0x53; // 'S'
+      const testSig = ml_dsa65.sign(testMsg, secBytes);
+      if (!ml_dsa65.verify(testSig, testMsg, pubBytes)) {
+        throw new Error('Key pair integrity check failed: sign+verify mismatch');
+      }
+
+      const confirm = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: panel([
+            heading('Import PQC Key Pair'),
+            text(`**${origin}** wants to import an ML-DSA-65 key pair.`),
+            text(`Public key: ${pubHex.slice(0, 20)}...`),
+            divider(),
+            text('The key pair has been verified (sign+verify check passed).'),
+            text('This will store the private key securely in the Snap.'),
+          ]),
+        },
+      });
+
+      if (!confirm) {
+        throw new Error('User rejected key pair import');
+      }
+
+      const state = await getState();
+      const keyId = `key_${Date.now()}`;
+      const normalizedPub = pubHex.startsWith('0x') ? pubHex : '0x' + pubHex;
+      const normalizedSec = secHex.startsWith('0x') ? secHex : '0x' + secHex;
+
+      state.keys[keyId] = {
+        publicKey: normalizedPub,
+        secretKey: normalizedSec,
+        createdAt: Date.now(),
+        label: label || 'Imported',
+      };
+      await saveState(state);
+
+      await snap.request({
+        method: 'snap_notify',
+        params: {
+          type: 'inApp',
+          message: `PQC key pair imported (${keyId})`,
+        },
+      });
+
+      return {
+        keyId,
+        publicKey: normalizedPub,
+        publicKeySize: MLDSA_PUBKEY_SIZE,
+        algorithm: 'ML-DSA-65',
+        standard: 'NIST FIPS 204',
+        securityLevel: 3,
+        imported: true,
+      };
+    }
+
     default:
       throw new Error(`Method not supported: ${method}`);
   }

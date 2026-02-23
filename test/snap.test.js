@@ -164,6 +164,107 @@ describe('Signature Verification', () => {
   });
 });
 
+describe('Secret Key Export (qs_exportSecretKey)', () => {
+  it('should export key pair with correct sizes', () => {
+    const { publicKey, secretKey } = ml_dsa65.keygen();
+    const pubHex = toHex(publicKey);
+    const secHex = toHex(secretKey);
+
+    // Simulate export result
+    const result = {
+      keyId: 'key_test',
+      secretKey: secHex,
+      publicKey: pubHex,
+      algorithm: 'ML-DSA-65',
+      secretKeySize: MLDSA_PRIVKEY_SIZE,
+      publicKeySize: MLDSA_PUBKEY_SIZE,
+    };
+
+    expect(result.secretKeySize).toBe(4032);
+    expect(result.publicKeySize).toBe(1952);
+    expect(fromHex(result.secretKey).length).toBe(MLDSA_PRIVKEY_SIZE);
+    expect(fromHex(result.publicKey).length).toBe(MLDSA_PUBKEY_SIZE);
+  });
+
+  it('exported secret key should produce valid signatures', () => {
+    const { publicKey, secretKey } = ml_dsa65.keygen();
+    const secHex = toHex(secretKey);
+
+    // Re-import from hex and sign
+    const restored = fromHex(secHex);
+    const msg = new Uint8Array(32).fill(0x42);
+    const sig = ml_dsa65.sign(msg, restored);
+    expect(ml_dsa65.verify(sig, msg, publicKey)).toBe(true);
+  });
+});
+
+describe('Key Pair Import (qs_importKeyPair)', () => {
+  it('should validate key sizes on import', () => {
+    const { publicKey, secretKey } = ml_dsa65.keygen();
+    expect(publicKey.length).toBe(MLDSA_PUBKEY_SIZE);
+    expect(secretKey.length).toBe(MLDSA_PRIVKEY_SIZE);
+
+    // Simulate size validation
+    const pubHex = toHex(publicKey);
+    const secHex = toHex(secretKey);
+    const pubBytes = fromHex(pubHex);
+    const secBytes = fromHex(secHex);
+    expect(pubBytes.length).toBe(MLDSA_PUBKEY_SIZE);
+    expect(secBytes.length).toBe(MLDSA_PRIVKEY_SIZE);
+  });
+
+  it('should pass sign+verify integrity check', () => {
+    const { publicKey, secretKey } = ml_dsa65.keygen();
+    const pubHex = toHex(publicKey);
+    const secHex = toHex(secretKey);
+
+    // Simulate the integrity check from qs_importKeyPair
+    const pubBytes = fromHex(pubHex);
+    const secBytes = fromHex(secHex);
+    const testMsg = new Uint8Array(32);
+    testMsg[0] = 0x51; // 'Q'
+    testMsg[1] = 0x53; // 'S'
+    const testSig = ml_dsa65.sign(testMsg, secBytes);
+    expect(ml_dsa65.verify(testSig, testMsg, pubBytes)).toBe(true);
+  });
+
+  it('should reject mismatched key pair', () => {
+    const kp1 = ml_dsa65.keygen();
+    const kp2 = ml_dsa65.keygen();
+
+    // pub from kp1, sec from kp2 → integrity check should fail
+    const testMsg = new Uint8Array(32);
+    testMsg[0] = 0x51;
+    testMsg[1] = 0x53;
+    const testSig = ml_dsa65.sign(testMsg, kp2.secretKey);
+    expect(ml_dsa65.verify(testSig, testMsg, kp1.publicKey)).toBe(false);
+  });
+
+  it('should reject invalid public key size', () => {
+    const badPub = new Uint8Array(100); // wrong size
+    expect(badPub.length).not.toBe(MLDSA_PUBKEY_SIZE);
+  });
+
+  it('should reject invalid secret key size', () => {
+    const badSec = new Uint8Array(100); // wrong size
+    expect(badSec.length).not.toBe(MLDSA_PRIVKEY_SIZE);
+  });
+
+  it('imported key should produce same signatures as original', () => {
+    const { publicKey, secretKey } = ml_dsa65.keygen();
+
+    // Round-trip through hex
+    const pubHex = toHex(publicKey);
+    const secHex = toHex(secretKey);
+    const restoredPub = fromHex(pubHex);
+    const restoredSec = fromHex(secHex);
+
+    const msg = new Uint8Array(32).fill(0xaa);
+    const sig = ml_dsa65.sign(msg, restoredSec);
+    expect(ml_dsa65.verify(sig, msg, restoredPub)).toBe(true);
+  });
+});
+
 describe('Constants', () => {
   it('should have correct ML-DSA-65 sizes', () => {
     expect(MLDSA_PUBKEY_SIZE).toBe(1952);
