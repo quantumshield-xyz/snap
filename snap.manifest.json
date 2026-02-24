@@ -4,15 +4,16 @@
   "proposedName": "QuantumShield PQC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/liveplex-cpu/quantumshield-l2.git"
+    "url": "https://github.com/liveplex-cpu/quantumshield-l2.git",
+    "directory": "snap"
   },
   "source": {
-    "shasum": "fc81437c9ada8d96b381aec0091c348c4d7b255ab614ef12f601440bed0b9b6a",
+    "shasum": "+FHNlb6GRqzvsZFzrHwglRBGwGHphjayaJBg5esAT4g=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "packageName": "@liveplex-cpu/quantumshield-snap",
-        "registry": "https://npm.pkg.github.com"
+        "registry": "https://registry.npmjs.org"
       }
     }
   },
@@ -25,5 +26,6 @@
       "snaps": false
     }
   },
+  "platformVersion": "10.4.0",
   "manifestVersion": "0.1"
 }

@@ -195,7 +195,8 @@ footer a { color:var(--accent); text-decoration:none; }
   <p>Install via npm or connect programmatically:</p>
   <pre style="background:#000;padding:16px;border-radius:10px;font-family:'Space Mono',monospace;font-size:13px;color:var(--cyan);overflow-x:auto;margin-top:12px;"><code>npm i @liveplex-cpu/quantumshield-snap</code></pre>
   <pre style="background:#000;padding:16px;border-radius:10px;font-family:'Space Mono',monospace;font-size:12px;color:var(--dim);overflow-x:auto;margin-top:12px;line-height:1.6;"><code><span style="color:#7c4dff">// Connect from your dApp</span>
-<span style="color:var(--text)">const snapId = 'npm:@liveplex-cpu/quantumshield-snap';</span>
+<!--<span style="color:var(&#45;&#45;text)">const snapId = 'npm:@liveplex-cpu/quantumshield-snap';</span>-->
+<span style="color:var(--text)">const snapId = 'local:http://localhost:8000';</span>
 
 <span style="color:var(--text)">await window.ethereum.request({</span>
 <span style="color:var(--text)">  method: 'wallet_requestSnaps',</span>
@@ -219,7 +220,8 @@ footer a { color:var(--accent); text-decoration:none; }
 </div>
 
 <script>
-const SNAP_ID = 'npm:@liveplex-cpu/quantumshield-snap';
+// const SNAP_ID = 'npm:@liveplex-cpu/quantumshield-snap';
+const SNAP_ID = "local:http://localhost:8000";
 let snapInstalled = false;
 
 function addLog(target, msg, cls='dim') {
