@@ -1,18 +1,19 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "QuantumShield PQC Snap — ML-DSA-65 (FIPS 204) hybrid signatures for MetaMask. Generates post-quantum key pairs and creates ECDSA + ML-DSA-65 hybrid signatures for QuantumShield L2.",
   "proposedName": "QuantumShield PQC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/liveplex-cpu/quantumshield-l2.git"
+    "url": "https://github.com/quantumshield-xyz/snap.git",
+    "directory": "snap"
   },
   "source": {
-    "shasum": "fc81437c9ada8d96b381aec0091c348c4d7b255ab614ef12f601440bed0b9b6a",
+    "shasum": "9fWiMrRXbJ226GX6uJ9rFXMqpywWuLTm2R4HLHiZqpE=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
-        "packageName": "@liveplex-cpu/quantumshield-snap",
-        "registry": "https://npm.pkg.github.com"
+        "packageName": "@quantumshield-js/snap",
+        "registry": "https://registry.npmjs.org"
       }
     }
   },
@@ -22,8 +23,26 @@
     "snap_notify": {},
     "endowment:rpc": {
       "dapps": true,
-      "snaps": false
+      "snaps": false,
+      "allowedOrigins": [
+        "https://quantumshield.xyz",
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:4000",
+        "http://localhost:8000",
+        "http://localhost:9545",
+        "http://localhost:8545",
+        "http://localhost:8080",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:4000",
+        "http://127.0.0.1:8000",
+        "http://127.0.0.1:9545",
+        "http://127.0.0.1:8545",
+        "http://127.0.0.1:8080"
+      ]
     }
   },
+  "platformVersion": "10.4.0",
   "manifestVersion": "0.1"
 }
