@@ -1,6 +1,6 @@
 {
   "name": "@quantumshield-js/snap",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "QuantumShield PQC Snap — ML-DSA-65 hybrid signatures for MetaMask. Post-quantum cryptography for QuantumShield L2.",
   "type": "module",
   "main": "dist/bundle.js",
